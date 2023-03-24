@@ -64,9 +64,9 @@ else
 
     (
         cd "$KC_DIR/providers"
-        wget "--user=$PACKAGE_REPOSITORY_USERNAME" "--password=$PACKAGE_REPOSITORY_PASSWORD" \
-            "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION.jar" \
-            "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION-ycc-db-local.jar"
+        curl -L -u "$PACKAGE_REPOSITORY_AUTH" \
+            "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION{,-ycc-db-local}.jar" \
+            -o "ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION#1.jar"
     )
 fi
 

@@ -1,4 +1,4 @@
-# YCC Keycloak (Development Mode)
+# YCC Keycloak (Local Development Mode)
 
 It is faster to explore/develop Keycloak with a simple local instance - it needs Java to be present on your machine though.
 
