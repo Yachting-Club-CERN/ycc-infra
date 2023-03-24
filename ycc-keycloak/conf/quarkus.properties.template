@@ -1,0 +1,5 @@
+quarkus.datasource.ycc-db-test.db-kind=jdbc-oracle
+quarkus.datasource.ycc-db-test.jdbc.driver=oracle.jdbc.OracleDriver
+quarkus.datasource.ycc-db-test.jdbc.url=$TEST_DB_URL
+quarkus.datasource.ycc-db-test.username=$TEST_DB_USERNAME
+quarkus.datasource.ycc-db-test.password=$TEST_DB_PASSWORD

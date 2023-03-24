@@ -1,0 +1,11 @@
+# Database
+
+db=oracle
+db-username=$KEYCLOAK_DB_USERNAME
+db-password=$KEYCLOAK_DB_PASSWORD
+db-url=$KEYCLOAK_DB_URL
+
+# Observability
+
+health-enabled=true
+metrics-enabled=true
