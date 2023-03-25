@@ -4,8 +4,19 @@ db=oracle
 db-username=$KEYCLOAK_DB_USERNAME
 db-password=$KEYCLOAK_DB_PASSWORD
 db-url=$KEYCLOAK_DB_URL
+transaction-xa-enabled=false
 
 # Observability
 
 health-enabled=true
 metrics-enabled=true
+
+# HTTP
+proxy=reencrypt
+hostname-strict=true
+http-enabled=false
+https-certificate-file=/opt/keycloak/certificate/crt.pem
+https-certificate-key-file=/opt/keycloak/certificate/key.pem
+
+hostname=ycc-auth.web.cern.ch
+hostname-admin=ycc-auth-admin.web.cern.ch
