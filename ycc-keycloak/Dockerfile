@@ -30,6 +30,6 @@ FROM quay.io/keycloak/keycloak:$KEYCLOAK_VERSION
 COPY --chown=1000:0 --from=resources "/usr/local/bin/envsubst" "/usr/local/bin/"
 COPY --chown=1000:0 --from=resources "/tmp/providers/"* "/opt/keycloak/providers"
 COPY --chown=1000:0 "conf" "/opt/keycloak/conf"
-COPY --chown=1000:0 "start.sh" "/opt/start.sh"
+COPY --chown=1000:0 "start.sh" "/opt/keycloak/start.sh"
 
-ENTRYPOINT ["/opt/start.sh"]
+ENTRYPOINT ["/opt/keycloak/start.sh"]
