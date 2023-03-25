@@ -2,6 +2,7 @@
 
 This repo holds infrastructure related documentation and resources.
 
+## Environments
 ## `ycc-keycloak*`
 
 According to the [Keycloak](https://www.keycloak.org/) website:

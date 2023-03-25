@@ -38,8 +38,8 @@ ARG KEYCLOAK_CERTIFICATE_KEY
 
 RUN set -u && \
     mkdir -p "/opt/keycloak/certificate" && \
-    echo "$KEYCLOAK_CERTIFICATE" > "/opt/keycloak/certificate/crt.pem" && \
-    echo "$KEYCLOAK_CERTIFICATE_KEY" > "/opt/keycloak/certificate/key.pem"
+    echo -e "$KEYCLOAK_CERTIFICATE" > "/opt/keycloak/certificate/crt.pem" && \
+    echo -e "$KEYCLOAK_CERTIFICATE_KEY" > "/opt/keycloak/certificate/key.pem"
 
 # 1000 = keycloak uid (ref: https://github.com/keycloak/keycloak/blob/main/quarkus/container/Dockerfile)
 COPY --chown=1000:0 --from=resources "/usr/local/bin/envsubst" "/usr/local/bin/"
