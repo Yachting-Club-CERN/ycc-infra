@@ -29,7 +29,7 @@ FROM quay.io/keycloak/keycloak:$KEYCLOAK_VERSION
 
 COPY --from=resources "/usr/local/bin/envsubst" "/usr/local/bin/"
 COPY --from=resources "/tmp/providers/"* "/opt/keycloak/providers"
-COPY --from=resources "/tmp/extra-libs/"* "/opt/keycloak/lib/lib/main"
+COPY --from=resources "/tmp/extra-libs/"* "/opt/keycloak/providers"
 COPY "conf" "/opt/keycloak/conf"
 COPY "start.sh" "/opt/start.sh"
 
