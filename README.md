@@ -4,11 +4,12 @@ This repo holds infrastructure related documentation and resources.
 
 ## Environments
 
-| Environment | Description                                   | OKD4 Project | Database           | Keycloak Realm          |
-| ----------- | --------------------------------------------- | ------------ | ------------------ | ----------------------- |
-| prod        | Production system                             | ycc-prod     | ycc n PDB CERNDB1  | ycc-keycloak / YCC      |
-| test        | Test system, with copy of the production data | ycc-test     | ycctest on devdb19 | ycc-keycloak / YCC-Test |
-| local       | Local development                             | -            | local              | local                   |
+| Environment | Description                                    | OKD4 Project | Database           | Keycloak Realm  |
+| ----------- | ---------------------------------------------- | ------------ | ------------------ | --------------- |
+| PRODUCTION  | Production system                              | ycc-prod     | ycc on PDB CERNDB1 | YCC             |
+| TEST        | Test/demo system (copy of the production data) | ycc-test     | ycctest on devdb19 | YCC-TEST        |
+| DEV         | Development system with test data              | ycc-dev      | yccdev on devdb19  | YCC-DEVELOPMENT |
+| LOCAL       | Local development                              | -            | local              | YCC-LOCAL       |
 
 There is one keycloak instance, `ycc-keycloak` (CERN OKD: `ycc-auth`), backed by the `ycckeycloak` database on `cerndb1`.
 
