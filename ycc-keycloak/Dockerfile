@@ -44,7 +44,7 @@ RUN set -u && \
 # 1000 = keycloak uid (ref: https://github.com/keycloak/keycloak/blob/main/quarkus/container/Dockerfile)
 COPY --chown=1000:0 --from=resources "/usr/local/bin/envsubst" "/usr/local/bin/"
 COPY --chown=1000:0 --from=resources "/tmp/providers/"* "/opt/keycloak/providers"
-COPY --chown=1000:0 "ycc-theme/*" "/opt/keycloak/themes/ycc-theme"
+COPY --chown=1000:0 "ycc-theme/" "/opt/keycloak/themes/ycc-theme"
 COPY --chown=1000:0 "conf" "/opt/keycloak/conf"
 COPY --chown=1000:0 "start.sh" "/opt/keycloak/start.sh"
 
