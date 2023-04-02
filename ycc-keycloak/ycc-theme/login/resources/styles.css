@@ -1,0 +1,76 @@
+/*
+Note on !important usage:
+
+I did not find a way to consistently force keycloak to prioritise this CSS
+file. Also, I just added !important everywhere as we cannot foresee what styles
+they change in future Keycloak versions. Ugly, but works.
+*/
+
+html {
+  background-color: white !important;
+
+  background-image: none !important;
+  background-attachment: fixed !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+}
+
+/* Most smartphones, smaller tablets and laptops */
+@media only screen and (max-height: 768px), (max-width: 1366px) {
+  html {
+    background-image: url("login-background-1366.jpg") !important;
+  }
+}
+
+/* Large smartphones, most tablets and computers */
+@media only screen and (min-height: 769px), (min-width: 1367px) {
+  html {
+    background-image: url("login-background-1920.jpg") !important;
+  }
+}
+
+/* Large and hi-res screens */
+@media only screen and (min-width: 1921px), (min-height: 1081px) {
+  html {
+    background-image: url("login-background-3840.jpg") !important;
+  }
+}
+
+body {
+  background-color: transparent !important;
+  background-image: none !important;
+  padding-left: 20px !important; /* For smartphones */
+  padding-right: 20px !important; /* For smartphones */
+  width: 100% !important;
+
+  display: flex !important;
+  justify-content: center !important;
+}
+
+#kc-header-wrapper::after {
+  content: " Login" !important;
+}
+
+.login-pf-page {
+  max-width: 500px !important;
+}
+
+.login-pf-page-header {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 5px 5px rgba(80, 80, 80, 0.4) !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  width: 100% !important;
+
+  color: rgb(54, 54, 54) !important;
+  font-size: 3rem !important;
+  letter-spacing: 0.2rem !important;
+}
+
+.card-pf {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 0 5px 5px rgba(80, 80, 80, 0.4) !important;
+  margin: 0 !important;
+  width: 100% !important;
+}

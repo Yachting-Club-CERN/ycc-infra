@@ -70,5 +70,15 @@ else
     )
 fi
 
+# Install theme
+echo ""
+echo "> Installing ycc-theme"
+echo ""
+
+echo ">> Removing existing ycc-theme ..."
+rm -rf "$KC_DIR/themes/ycc-theme"
+echo ">> Copying ycc-theme ..."
+cp -r "$SCRIPT_DIR/../ycc-keycloak/ycc-theme" "$KC_DIR/themes/ycc-theme"
+
 echo ""
 echo "> Done"
