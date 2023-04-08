@@ -3,3 +3,9 @@ quarkus.datasource.ycc-db-test.jdbc.driver=oracle.jdbc.OracleDriver
 quarkus.datasource.ycc-db-test.jdbc.url=$TEST_DB_URL
 quarkus.datasource.ycc-db-test.username=$TEST_DB_USERNAME
 quarkus.datasource.ycc-db-test.password=$TEST_DB_PASSWORD
+
+quarkus.datasource.ycc-db-dev.db-kind=jdbc-oracle
+quarkus.datasource.ycc-db-dev.jdbc.driver=oracle.jdbc.OracleDriver
+quarkus.datasource.ycc-db-dev.jdbc.url=$DEV_DB_URL
+quarkus.datasource.ycc-db-dev.username=$DEV_DB_USERNAME
+quarkus.datasource.ycc-db-dev.password=$DEV_DB_PASSWORD
