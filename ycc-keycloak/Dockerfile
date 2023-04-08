@@ -1,5 +1,5 @@
 ARG KEYCLOAK_VERSION="21.0.1"
-ARG YCC_KEYCLOAK_PROVIDER_VERSION="0.3.0"
+ARG YCC_KEYCLOAK_PROVIDER_VERSION="0.3.1"
 # Improved version, see https://github.com/a8m/envsubst
 ARG ENVSUBST_VERSION="v1.4.2"
 # See https://github.com/Yachting-Club-CERN/ycc-infra/issues/8 and https://github.com/keycloak/keycloak/issues/17450
