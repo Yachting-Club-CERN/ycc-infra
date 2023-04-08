@@ -48,7 +48,7 @@ if [ "$YCC_KEYCLOAK_PROVIDER_VERSION" == "LOCAL" ]; then
         remove_provider
 
         echo ">> Copying providers from $YCC_KEYCLOAK_PROVIDER_LOCAL_DIRECTORY ..."
-        echo "$(ls "$YCC_KEYCLOAK_PROVIDER_LOCAL_DIRECTORY" | grep -Ev "javadoc|sources|ycc-db-test|ycc-db-prod")" | while read -r f; do
+        echo "$(ls "$YCC_KEYCLOAK_PROVIDER_LOCAL_DIRECTORY" | grep -Ev "javadoc|sources|ycc-db-dev|ycc-db-test|ycc-db-prod")" | while read -r f; do
             echo ">>> Copying $f ..."
             cp "$YCC_KEYCLOAK_PROVIDER_LOCAL_DIRECTORY/$f" "$KC_DIR/providers"
         done
