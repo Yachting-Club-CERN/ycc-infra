@@ -82,6 +82,10 @@ ALTER TABLE helper_tasks
     ADD CONSTRAINT helper_tasks_check_helpers_min_max_count
         CHECK (helpers_min_count <= helpers_max_count);
 
+--
+-- CHECK constraints using TRIGGER
+--
+
 -- This simplifies a lot, anyway the application works in subscribe/unsubscribe mode.
 -- (During "task exchange" one can run a transaction with one DELETE and one INSERT.)
 CREATE OR REPLACE TRIGGER helper_task_helpers_forbid_updates
@@ -90,6 +94,7 @@ FOR EACH ROW
 BEGIN
     RAISE_APPLICATION_ERROR(-20000, 'Updates to helper_task_helpers are not allowed - try deleting and re-inserting');
 END;
+/
 
 -- CHECK captain cannot be helper (and vica versa) for the same task
 
@@ -109,6 +114,7 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20000, 'Member cannot be captain because they are also a helper for the same task');
     END IF;
 END;
+/
 
 CREATE OR REPLACE TRIGGER helper_task_helpers_check_cannot_be_helper_if_already_captain
 BEFORE INSERT OR UPDATE OF task_id, member_id ON helper_task_helpers
@@ -126,6 +132,7 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20000, 'Member cannot be helper because they are also a captain for the same task');
     END IF;
 END;
+/
 
 -- CHECK Respect max helper counts
 
@@ -146,6 +153,7 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20000, 'The maximum number of helpers cannot be reduced below the current number of subscribed helpers');
     END IF;
 END;
+/
 
 CREATE OR REPLACE TRIGGER helper_task_helpers_check_no_more_helpers_than_max_helper_count
 BEFORE INSERT ON helper_task_helpers
@@ -166,6 +174,7 @@ BEGIN
         RAISE_APPLICATION_ERROR(-20000, 'Member cannot be helper because there are already enough helpers for the task');
     END IF;
 END;
+/
 
 -- Backend service checks:
 -- - A captain should be an active member for the season when they are subscribing
