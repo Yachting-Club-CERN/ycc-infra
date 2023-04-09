@@ -29,14 +29,6 @@ CREATE TABLE helper_tasks (
     captain_subscribed_at            DATE
 );
 
-ALTER TABLE helper_tasks
-    ADD CHECK ( ( captain_id IS     NULL AND captain_subscribed_at IS     NULL )
-             OR ( captain_id IS NOT NULL AND captain_subscribed_at IS NOT NULL ) );
-
-ALTER TABLE helper_tasks
-    ADD CHECK ( ( "START" IS NOT NULL AND end IS NOT NULL AND deadline IS     NULL)
-             OR ( "START" IS     NULL AND end IS     NULL AND deadline IS NOT NULL) );
-
 ALTER TABLE helper_tasks ADD CONSTRAINT helper_tasks_pk PRIMARY KEY ( id );
 
 CREATE TABLE helper_task_helpers (
@@ -71,3 +63,17 @@ ALTER TABLE helper_task_helpers
 ALTER TABLE helper_task_helpers
     ADD CONSTRAINT helper_task_helpers_member_fk FOREIGN KEY ( member_id )
         REFERENCES members ( id );
+
+--
+-- CHECK constraints
+--
+
+ALTER TABLE helper_tasks
+    ADD CONSTRAINT helper_tasks_check_timing
+        CHECK ( ( "START" IS NOT NULL AND end IS NOT NULL AND deadline IS     NULL)
+             OR ( "START" IS     NULL AND end IS     NULL AND deadline IS NOT NULL) );
+
+ALTER TABLE helper_tasks
+    ADD CONSTRAINT helper_tasks_check_captain_fields
+        CHECK ( ( captain_id IS     NULL AND captain_subscribed_at IS     NULL )
+             OR ( captain_id IS NOT NULL AND captain_subscribed_at IS NOT NULL ) );

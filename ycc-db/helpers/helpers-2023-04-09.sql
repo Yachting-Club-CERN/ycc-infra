@@ -70,19 +70,20 @@ ALTER TABLE helper_task_helpers
 
 ALTER TABLE helper_tasks
     ADD CONSTRAINT helper_tasks_check_timing
-    CHECK ( ( "START" IS NOT NULL AND end IS NOT NULL AND deadline IS     NULL and "START" < end )
-         OR ( "START" IS     NULL AND end IS     NULL AND deadline IS NOT NULL) );
+        CHECK ( ( "START" IS NOT NULL AND end IS NOT NULL AND deadline IS     NULL and "START" < end )
+             OR ( "START" IS     NULL AND end IS     NULL AND deadline IS NOT NULL                   ) );
 
 ALTER TABLE helper_tasks
     ADD CONSTRAINT helper_tasks_check_captain_fields
-    CHECK ( ( captain_id IS     NULL AND captain_subscribed_at IS     NULL )
-         OR ( captain_id IS NOT NULL AND captain_subscribed_at IS NOT NULL ) );
+        CHECK ( ( captain_id IS     NULL AND captain_subscribed_at IS     NULL )
+             OR ( captain_id IS NOT NULL AND captain_subscribed_at IS NOT NULL ) );
 
 ALTER TABLE helper_tasks
     ADD CONSTRAINT helper_tasks_check_helpers_min_max_count
-    CHECK (helpers_min_count <= helpers_max_count);
+        CHECK (helpers_min_count <= helpers_max_count);
 
--- This simplifies a lot, also the application works in subscribe/unsubscribe mode. During "task exchange" one can run a transaction with one DELETE and one INSERT.
+-- This simplifies a lot, anyway the application works in subscribe/unsubscribe mode.
+-- (During "task exchange" one can run a transaction with one DELETE and one INSERT.)
 CREATE OR REPLACE TRIGGER helper_task_helpers_forbid_updates
 BEFORE UPDATE ON helper_task_helpers
 FOR EACH ROW
@@ -109,7 +110,7 @@ BEGIN
     END IF;
 END;
 
-CREATE OR REPLACE TRIGGER helper_tasks_check_cannot_be_helper_if_already_captain
+CREATE OR REPLACE TRIGGER helper_task_helpers_check_cannot_be_helper_if_already_captain
 BEFORE INSERT OR UPDATE OF task_id, member_id ON helper_task_helpers
 FOR EACH ROW
 DECLARE
@@ -128,6 +129,24 @@ END;
 
 -- CHECK Respect max helper counts
 
+CREATE OR REPLACE TRIGGER helper_tasks_check_max_helper_count
+BEFORE UPDATE OF helpers_max_count ON helper_tasks
+FOR EACH ROW
+DECLARE
+    v_helper_count NUMBER;
+BEGIN
+    -- Get the number of subscribed helpers for the task
+    SELECT COUNT(*)
+    INTO v_helper_count
+    FROM helper_task_helpers
+    WHERE task_id = :NEW.id;
+
+    -- Check if the new helpers_max_count value is less than the current number of subscribed helpers
+    IF :NEW.helpers_max_count < v_helper_count THEN
+        RAISE_APPLICATION_ERROR(-20000, 'The maximum number of helpers cannot be reduced below the current number of subscribed helpers');
+    END IF;
+END;
+
 CREATE OR REPLACE TRIGGER helper_task_helpers_check_no_more_helpers_than_max_helper_count
 BEFORE INSERT ON helper_task_helpers
 FOR EACH ROW
@@ -145,24 +164,6 @@ BEGIN
 
     IF v_helper_count > v_max_helper_count THEN
         RAISE_APPLICATION_ERROR(-20000, 'Member cannot be helper because there are already enough helpers for the task');
-    END IF;
-END;
-
-CREATE OR REPLACE TRIGGER helper_tasks_check_max_helper_count
-BEFORE UPDATE OF helpers_max_count ON helper_tasks
-FOR EACH ROW
-DECLARE
-    v_helper_count NUMBER;
-BEGIN
-    -- Get the number of subscribed helpers for the task
-    SELECT COUNT(*)
-    INTO v_helper_count
-    FROM helper_task_helpers
-    WHERE task_id = :NEW.id;
-
-    -- Check if the new helpers_max_count value is less than the current number of subscribed helpers
-    IF :NEW.helpers_max_count < v_helper_count THEN
-        RAISE_APPLICATION_ERROR(-20000, 'The maximum number of helpers cannot be reduced below the current number of subscribed helpers');
     END IF;
 END;
 
