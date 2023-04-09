@@ -148,7 +148,7 @@ BEGIN
     END IF;
 END;
 
-CREATE OR REPLACE TRIGGER helper_tasks_check_min_helper_count
+CREATE OR REPLACE TRIGGER helper_tasks_check_max_helper_count
 BEFORE UPDATE OF helpers_max_count ON helper_tasks
 FOR EACH ROW
 DECLARE
