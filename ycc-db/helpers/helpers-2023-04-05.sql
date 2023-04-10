@@ -1,7 +1,7 @@
 -- If you need the SQL Developer Data Modeler files, just ask Lajos
 
 CREATE TABLE helper_task_categories (
-    id                NUMBER GENERATED ALWAYS as IDENTITY(START with 1 INCREMENT by 1) NOT NULL,
+    id                NUMBER GENERATED ALWAYS AS IDENTITY(START with 1 INCREMENT by 1) NOT NULL,
     title             VARCHAR2(50) NOT NULL,
     short_description VARCHAR2(200) NOT NULL,
     long_description  CLOB
@@ -11,7 +11,7 @@ ALTER TABLE helper_task_categories ADD CONSTRAINT helper_task_categories_pk PRIM
 
 CREATE TABLE helper_tasks (
     -- In Sachsa's system there are 1885 entries as of 2023-04-05, keep a cosy for migration
-    id                               NUMBER GENERATED ALWAYS as IDENTITY(START with 3000 INCREMENT by 1) NOT NULL,
+    id                               NUMBER GENERATED ALWAYS AS IDENTITY(START with 3000 INCREMENT by 1) NOT NULL,
     category_id                      NUMBER NOT NULL,
     title                            VARCHAR2(50) NOT NULL,
     short_description                VARCHAR2(200) NOT NULL,
