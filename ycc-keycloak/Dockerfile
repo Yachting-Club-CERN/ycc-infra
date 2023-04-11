@@ -25,7 +25,7 @@ RUN curl -L "https://github.com/a8m/envsubst/releases/download/$ENVSUBST_VERSION
     chmod +x "/usr/local/bin/envsubst" && \
     mkdir -p "/tmp/providers" && \
     curl -L -u "$PACKAGE_REPOSITORY_AUTH" \
-        "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION{,-ycc-db-dev,-ycc-db-test}.jar" \
+        "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION{,-ycc-db-dev,-ycc-db-test,-ycc-db-prod}.jar" \
         -o "/tmp/providers/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION#1.jar" && \
     curl -L "https://repo1.maven.org/maven2/com/oracle/database/nls/orai18n/$KEYCLOAK_ORACLE_VERSION/orai18n-$KEYCLOAK_ORACLE_VERSION.jar" \
         -o "/tmp/providers/com.oracle.database.nls.orai18n-$KEYCLOAK_ORACLE_VERSION.jar"
