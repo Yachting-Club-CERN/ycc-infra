@@ -35,7 +35,6 @@ CREATE TABLE helper_tasks (
     short_description                VARCHAR2(200) NOT NULL,
     long_description                 CLOB,
     contact_id                       NUMBER NOT NULL,
-    -- TODO BAD FIELD
     "START"                          DATE,
     end                              DATE,
     deadline                         DATE,
