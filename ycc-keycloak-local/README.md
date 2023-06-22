@@ -12,7 +12,7 @@ Use the `*.sh` scripts at your convenience.
 
 1. Start a `ycc-db-local` instance
 2. Run `./init.sh`
-3. Run `./kc.sh --start-dev`
+3. Run `./kc.sh start-dev`
 
 ## Exporting Your Local Realm
 
