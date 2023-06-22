@@ -1,5 +1,3 @@
--- If you need the SQL Developer Data Modeler files, just ask Lajos
-
 CREATE TABLE helpers_app_permissions (
     member_id  NUMBER NOT NULL,
     permission VARCHAR2(10) NOT NULL

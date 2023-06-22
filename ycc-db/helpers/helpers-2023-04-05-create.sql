@@ -1,5 +1,3 @@
--- If you need the SQL Developer Data Modeler files, just ask Lajos
-
 CREATE TABLE helper_task_categories (
     id                NUMBER GENERATED ALWAYS AS IDENTITY(START with 1 INCREMENT by 1) NOT NULL,
     title             VARCHAR2(50) NOT NULL,
