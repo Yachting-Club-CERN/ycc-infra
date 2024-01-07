@@ -1,9 +1,9 @@
-ARG KEYCLOAK_VERSION="21.0.1"
-ARG YCC_KEYCLOAK_PROVIDER_VERSION="0.4.0"
+ARG KEYCLOAK_VERSION="22.0.4"
+ARG YCC_KEYCLOAK_PROVIDER_VERSION="1.0.0"
 # Improved version, see https://github.com/a8m/envsubst
 ARG ENVSUBST_VERSION="v1.4.2"
 # See https://github.com/Yachting-Club-CERN/ycc-infra/issues/8 and https://github.com/keycloak/keycloak/issues/17450
-ARG KEYCLOAK_ORACLE_VERSION="21.5.0.0"
+ARG KEYCLOAK_ORACLE_VERSION="23.2.0.0"
 
 ARG PACKAGE_REPOSITORY_BASE_PATH="https://maven.pkg.github.com/Yachting-Club-CERN/ycc-keycloak-provider/ch/cern/ycc/ycc-keycloak-provider"
 ARG PACKAGE_REPOSITORY_AUTH="ycc-bot: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" # Anyway this is public, but the public links are cumbersome cloud links
