@@ -1,4 +1,4 @@
--- Schema @ 2023-02 without VIEWs
+-- Schema @ 2023-12 without VIEWs
 -- .noautorun: The container should importing this file as SYS too upon start
 SET ECHO ON ;
 WHENEVER SQLERROR EXIT FAILURE ;
@@ -29,6 +29,11 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --------------------------------------------------------
 
    CREATE SEQUENCE  "FEESRECORDS_ID"  MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+--------------------------------------------------------
+--  DDL for Sequence HOLIDAYS_ID
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "HOLIDAYS_ID"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
 --------------------------------------------------------
 --  DDL for Sequence IMPORTANT_VALUES_ID
 --------------------------------------------------------
@@ -183,7 +188,7 @@ WHENEVER SQLERROR EXIT FAILURE ;
 	"YCC_NUM" NUMBER(3,0),
 	"LICENSE" VARCHAR2(5 BYTE),
 	"CLASS" VARCHAR2(5 BYTE),
-	"TABLE_POS" NUMBER(3,0),
+	"TABLE_POS" NUMBER(5,0),
 	"MAINTAINER_ID" NUMBER,
 	"EXT_REG_CAT" VARCHAR2(2 BYTE),
 	"MAINTAINER_ID2" NUMBER,
@@ -277,6 +282,19 @@ WHENEVER SQLERROR EXIT FAILURE ;
 	"PREF_DAYS" VARCHAR2(20 BYTE),
 	"PREF_LANG" VARCHAR2(10 BYTE),
 	"NOTES" VARCHAR2(50 BYTE)
+   ) SEGMENT CREATION IMMEDIATE
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table DB_EDITS
+--------------------------------------------------------
+
+  CREATE TABLE "DB_EDITS"
+   (	"ID" NUMBER GENERATED ALWAYS AS IDENTITY MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE ,
+	"TABLE_NAME" VARCHAR2(50 BYTE),
+	"ROW_ID" NUMBER,
+	"TIME_STAMP" DATE
    ) SEGMENT CREATION IMMEDIATE
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
  NOCOMPRESS LOGGING
@@ -407,11 +425,19 @@ WHENEVER SQLERROR EXIT FAILURE ;
 
   CREATE TABLE "HOLIDAYS"
    (	"DAY" DATE,
-	"LABEL" VARCHAR2(20 BYTE)
+	"LABEL" VARCHAR2(20 BYTE),
+	"ID" NUMBER
    ) SEGMENT CREATION IMMEDIATE
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table HT_WEB_LOGON
+--------------------------------------------------------
+
+  CREATE GLOBAL TEMPORARY TABLE "HT_WEB_LOGON"
+   (	"MEMBER_ID" NUMBER(19,0)
+   ) ON COMMIT DELETE ROWS ;
 --------------------------------------------------------
 --  DDL for Table IMPORTANT_DATES
 --------------------------------------------------------
@@ -568,6 +594,139 @@ WHENEVER SQLERROR EXIT FAILURE ;
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
  NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table MD_APPLICATIONFILES
+--------------------------------------------------------
+
+  CREATE TABLE "MD_APPLICATIONFILES"
+   (	"ID" NUMBER,
+	"APPLICATIONS_ID_FK" NUMBER,
+	"NAME" VARCHAR2(200 BYTE),
+	"URI" VARCHAR2(4000 BYTE),
+	"TYPE" VARCHAR2(100 BYTE),
+	"STATE" VARCHAR2(100 BYTE),
+	"LANGUAGE" VARCHAR2(100 BYTE),
+	"LOC" NUMBER,
+	"SECURITY_GROUP_ID" NUMBER DEFAULT 0,
+	"CREATED_ON" DATE DEFAULT sysdate,
+	"CREATED_BY" VARCHAR2(4000 BYTE),
+	"UPDATED_ON" DATE,
+	"UPDATED_BY" VARCHAR2(4000 BYTE)
+   ) SEGMENT CREATION DEFERRED
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."NAME" IS 'file name  //OBJECTNAME';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."URI" IS 'The uri is the part of the file url after the base dir has been removed.  See MD_APPLICATION for base dir';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."TYPE" IS 'This will denote the type of file we have, including DIR, FILE (text), BINARY, IGNORE (where we choose to ignore files)';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."STATE" IS 'State will be how this file is operated on.  For example. it will be OPEN, NEW, FIXED, IGNORED, REVIEWED, COMPLETE';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."LANGUAGE" IS 'Language of the file that has been processed.';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."SECURITY_GROUP_ID" IS 'APEX';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."CREATED_ON" IS 'APEX';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."CREATED_BY" IS 'APEX';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."UPDATED_ON" IS 'APEX';
+   COMMENT ON COLUMN "MD_APPLICATIONFILES"."UPDATED_BY" IS 'APEX';
+   COMMENT ON TABLE "MD_APPLICATIONFILES"  IS 'Holds a tuple for each file that is being processed whether it is changed or not.';
+--------------------------------------------------------
+--  DDL for Table MD_APPLICATIONS
+--------------------------------------------------------
+
+  CREATE TABLE "MD_APPLICATIONS"
+   (	"ID" NUMBER,
+	"NAME" VARCHAR2(4000 BYTE),
+	"DESCRIPTION" VARCHAR2(4000 BYTE),
+	"BASE_DIR" VARCHAR2(4000 BYTE),
+	"OUTPUT_DIR" VARCHAR2(4000 BYTE),
+	"BACKUP_DIR" VARCHAR2(4000 BYTE),
+	"INPLACE" NUMBER,
+	"PROJECT_ID_FK" NUMBER,
+	"SECURITY_GROUP_ID" NUMBER DEFAULT 0,
+	"CREATED_ON" DATE DEFAULT sysdate,
+	"CREATED_BY" VARCHAR2(255 BYTE),
+	"LAST_UPDATED_ON" DATE,
+	"LAST_UPDATED_BY" VARCHAR2(255 BYTE)
+   ) SEGMENT CREATION DEFERRED
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+
+   COMMENT ON COLUMN "MD_APPLICATIONS"."ID" IS 'Primary Key';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."NAME" IS 'Name of the application suite  //OBJECTNAME';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."DESCRIPTION" IS 'Overview of what the application does.';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."BASE_DIR" IS 'This is the base src directory for the application.  It could be an svn checkout, a clearcase view or something similar';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."OUTPUT_DIR" IS 'This is the output directory where the scanner will present the converted files, if there are converted or modified.';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."BACKUP_DIR" IS 'This is the directory in which the application files are backed up if a backp is chosen';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."INPLACE" IS 'Designates whether the changes have been made inplace, in the source directory or not';
+   COMMENT ON COLUMN "MD_APPLICATIONS"."PROJECT_ID_FK" IS 'project of the database(s) this application relates to';
+   COMMENT ON TABLE "MD_APPLICATIONS"  IS 'This is the base table for application projects.  It holds the base information for applications associated with a database';
+--------------------------------------------------------
+--  DDL for Table MD_FILE_ARTIFACTS
+--------------------------------------------------------
+
+  CREATE TABLE "MD_FILE_ARTIFACTS"
+   (	"ID" NUMBER,
+	"APPLICATIONFILES_ID" NUMBER,
+	"PATTERN" VARCHAR2(4000 BYTE),
+	"STRING_FOUND" VARCHAR2(4000 BYTE),
+	"STRING_REPLACED" VARCHAR2(4000 BYTE),
+	"TYPE" VARCHAR2(200 BYTE),
+	"STATUS" VARCHAR2(4000 BYTE),
+	"LINE" NUMBER,
+	"PATTERN_START" NUMBER,
+	"PATTERN_END" NUMBER,
+	"DUE_DATE" DATE,
+	"DB_TYPE" VARCHAR2(100 BYTE),
+	"CODE_TYPE" VARCHAR2(1000 BYTE),
+	"DESCRIPTION" VARCHAR2(4000 BYTE),
+	"PRIORITY" NUMBER(*,0),
+	"SECURITY_GROUP_ID" VARCHAR2(20 BYTE) DEFAULT '0',
+	"CREATED_ON" DATE DEFAULT sysdate,
+	"CREATED_BY" VARCHAR2(4000 BYTE),
+	"LAST_UPDATED" DATE,
+	"LAST_UPDATED_BY" VARCHAR2(4000 BYTE)
+   ) SEGMENT CREATION DEFERRED
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS" ;
+
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."PATTERN" IS 'Pattern used to search source file for interesting artifiacts';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."STRING_FOUND" IS 'String found in source from the pattern supplied';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."STRING_REPLACED" IS 'This is the string which replace the string found if it was replaced.';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."TYPE" IS 'This is the type of the replacement.  It could be a straight replace from a replacement pattern, or we could have passed the string to a translator which would change the string depending on the database.';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."STATUS" IS 'Pattern used to search source file for interesting artifiacts';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."DUE_DATE" IS 'Due date is used by the TODO mechanism to manage the validation and work to complete this change';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."DB_TYPE" IS 'Source database calls type';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."CODE_TYPE" IS 'Source code db api, like dblib, jdbc';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."DESCRIPTION" IS 'This is a description of the artifact which will have a default generated by the scanner and then can be modified by the user to be more appropriate for their use';
+   COMMENT ON COLUMN "MD_FILE_ARTIFACTS"."PRIORITY" IS 'The priority is set for the TODOs so they can be managed by the user';
+   COMMENT ON TABLE "MD_FILE_ARTIFACTS"  IS 'Holds a tuple for each interesting thing the scanner finds in a file';
+--------------------------------------------------------
+--  DDL for Table MD_TABLESPACES
+--------------------------------------------------------
+
+  CREATE TABLE "MD_TABLESPACES"
+   (	"ID" NUMBER,
+	"SCHEMA_ID_FK" NUMBER,
+	"TABLESPACE_NAME" VARCHAR2(4000 BYTE),
+	"NATIVE_SQL" CLOB,
+	"NATIVE_KEY" VARCHAR2(4000 BYTE),
+	"COMMENTS" VARCHAR2(4000 BYTE),
+	"SECURITY_GROUP_ID" NUMBER DEFAULT 0,
+	"CREATED_ON" DATE DEFAULT sysdate,
+	"CREATED_BY" VARCHAR2(255 BYTE),
+	"LAST_UPDATED_ON" DATE,
+	"LAST_UPDATED_BY" VARCHAR2(255 BYTE)
+   ) SEGMENT CREATION DEFERRED
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
+ NOCOMPRESS LOGGING
+  TABLESPACE "USERS"
+ LOB ("NATIVE_SQL") STORE AS BASICFILE (
+  TABLESPACE "USERS" ENABLE STORAGE IN ROW CHUNK 8192 RETENTION
+  CACHE ) ;
+
+   COMMENT ON COLUMN "MD_TABLESPACES"."ID" IS 'Primary Key';
+   COMMENT ON TABLE "MD_TABLESPACES"  IS 'For storing information about tablespaces.';
 --------------------------------------------------------
 --  DDL for Table MEMBERS
 --------------------------------------------------------
@@ -1202,7 +1361,8 @@ WHENEVER SQLERROR EXIT FAILURE ;
 	"LOGON_PASS2" VARCHAR2(128 BYTE),
 	"PASS_RESET_KEY" VARCHAR2(128 BYTE),
 	"PASS_RESET_EXP" DATE,
-	"LAST_CHANGED" DATE
+	"LAST_CHANGED" DATE,
+	"RF_UID" VARCHAR2(10 BYTE)
    ) SEGMENT CREATION IMMEDIATE
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
  NOCOMPRESS LOGGING
@@ -1232,7 +1392,10 @@ WHENEVER SQLERROR EXIT FAILURE ;
 	"MODIFIED" DATE,
 	"KEYSLOG_ID" NUMBER,
 	"LOG_ID" NUMBER,
-	"LOG_COMMENT" CLOB
+	"LOG_COMMENT" CLOB,
+	"SKIPPER" VARCHAR2(50 BYTE),
+	"CREW" VARCHAR2(200 BYTE),
+	"WIND" VARCHAR2(50 BYTE)
    ) SEGMENT CREATION IMMEDIATE
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255
  NOCOMPRESS LOGGING
@@ -1287,6 +1450,13 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --------------------------------------------------------
 
   CREATE UNIQUE INDEX "COURSES_PK" ON "COURSES_OBS" ("MEMBER_ID", "CLASS_ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index DB_EDITS_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "DB_EDITS_PK" ON "DB_EDITS" ("ID")
   PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS" ;
 --------------------------------------------------------
@@ -1367,6 +1537,27 @@ WHENEVER SQLERROR EXIT FAILURE ;
   PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS" ;
 --------------------------------------------------------
+--  DDL for Index MD_APPLICATIONFILES_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "MD_APPLICATIONFILES_PK" ON "MD_APPLICATIONFILES" ("ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MD_APPLICATIONS_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "MD_APPLICATIONS_PK" ON "MD_APPLICATIONS" ("ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Index MD_FILE_ARTIFACTS_PK
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "MD_FILE_ARTIFACTS_PK" ON "MD_FILE_ARTIFACTS" ("ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
 --  DDL for Index MEMBERS_DC_PK
 --------------------------------------------------------
 
@@ -1409,6 +1600,13 @@ WHENEVER SQLERROR EXIT FAILURE ;
   PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS" ;
 --------------------------------------------------------
+--  DDL for Index MD_APP_FILE_TYPE_IDX
+--------------------------------------------------------
+
+  CREATE INDEX "MD_APP_FILE_TYPE_IDX" ON "MD_APPLICATIONFILES" ("TYPE", "ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
 --  DDL for Index I_EMAIL_QUEUE_TABLE_STATUS
 --------------------------------------------------------
 
@@ -1430,6 +1628,13 @@ WHENEVER SQLERROR EXIT FAILURE ;
   PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS" ;
 --------------------------------------------------------
+--  DDL for Index MD_STATE_TYPE__ID
+--------------------------------------------------------
+
+  CREATE INDEX "MD_STATE_TYPE__ID" ON "MD_APPLICATIONFILES" ("STATE", "TYPE", "ID")
+  PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
 --  DDL for Index ADMININDEX1
 --------------------------------------------------------
 
@@ -1443,6 +1648,30 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --------------------------------------------------------
 --------------------------------------------------------
 
+--------------------------------------------------------
+--  DDL for Trigger FEESRECORDS_EDITED
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "FEESRECORDS_EDITED"
+AFTER DELETE OR INSERT OR UPDATE ON FEESRECORDS
+FOR EACH ROW
+DECLARE
+    D DATE;
+    R_ID NUMBER;
+BEGIN
+    D := SYSDATE;
+
+    IF INSERTING OR UPDATING THEN
+        R_ID := :NEW.PAYMENTID;
+    ELSE
+        R_ID := :OLD.PAYMENTID;
+    END IF;
+
+    INSERT INTO DB_EDITS (TABLE_NAME, ROW_ID, TIME_STAMP) VALUES('FEESRECORDS', R_ID, D);
+
+END;
+/
+ALTER TRIGGER "FEESRECORDS_EDITED" ENABLE;
 --------------------------------------------------------
 --  DDL for Trigger FEESRECORDS_TRG
 --------------------------------------------------------
@@ -1460,6 +1689,116 @@ end;
 
 /
 ALTER TRIGGER "FEESRECORDS_TRG" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger HOLIDAYS_EDITED
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "HOLIDAYS_EDITED"
+AFTER DELETE OR INSERT OR UPDATE ON HOLIDAYS
+FOR EACH ROW
+DECLARE
+    D DATE;
+    R_ID NUMBER;
+BEGIN
+    D := SYSDATE;
+
+    IF INSERTING OR UPDATING THEN
+        R_ID := :NEW.ID;
+    ELSE
+        R_ID := :OLD.ID;
+    END IF;
+
+    INSERT INTO DB_EDITS (TABLE_NAME, ROW_ID, TIME_STAMP) VALUES('HOLIDAYS', R_ID, D);
+
+END;
+/
+ALTER TRIGGER "HOLIDAYS_EDITED" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger HOLIDAYS_ID_TRIGGER
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "HOLIDAYS_ID_TRIGGER"
+BEFORE INSERT ON HOLIDAYS
+for each row
+begin
+  if :new.ID is null then
+     select HOLIDAYS_ID.nextval into :new.id from dual;
+  end if;
+end;
+/
+ALTER TRIGGER "HOLIDAYS_ID_TRIGGER" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger LICENCES_EDITED
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "LICENCES_EDITED"
+AFTER DELETE OR INSERT OR UPDATE ON LICENCES
+FOR EACH ROW
+DECLARE
+    D DATE;
+    R_ID NUMBER;
+BEGIN
+    D := SYSDATE;
+
+    IF INSERTING OR UPDATING THEN
+        R_ID := :NEW.MEMBER_ID;
+    ELSE
+        R_ID := :OLD.MEMBER_ID;
+    END IF;
+
+    INSERT INTO DB_EDITS (TABLE_NAME, ROW_ID, TIME_STAMP) VALUES('LICENCES', R_ID, D);
+
+END;
+/
+ALTER TRIGGER "LICENCES_EDITED" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger RESERVATIONS_EDITED
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "RESERVATIONS_EDITED"
+AFTER DELETE OR INSERT OR UPDATE ON RESERVATIONS
+FOR EACH ROW
+DECLARE
+    D DATE;
+    R_ID NUMBER;
+BEGIN
+    D := SYSDATE;
+
+    IF INSERTING OR UPDATING THEN
+        R_ID := :NEW.RES_ID;
+    ELSE
+        R_ID := :OLD.RES_ID;
+    END IF;
+
+    INSERT INTO DB_EDITS (TABLE_NAME, ROW_ID, TIME_STAMP) VALUES('RESERVATIONS', R_ID, D);
+
+END;
+/
+ALTER TRIGGER "RESERVATIONS_EDITED" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger STATUS_EDITED
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "STATUS_EDITED"
+AFTER DELETE OR INSERT OR UPDATE ON STATUS
+FOR EACH ROW
+DECLARE
+    D DATE;
+    R_ID NUMBER;
+BEGIN
+    D := SYSDATE;
+
+    IF INSERTING OR UPDATING THEN
+        R_ID := :NEW.STAT_ID;
+    ELSE
+        R_ID := :OLD.STAT_ID;
+    END IF;
+
+    INSERT INTO DB_EDITS (TABLE_NAME, ROW_ID, TIME_STAMP) VALUES('STATUS', R_ID, D);
+
+END;
+/
+ALTER TRIGGER "STATUS_EDITED" ENABLE;
 --------------------------------------------------------
 --  DDL for Trigger TRG_IMPORTANT_VALUES
 --------------------------------------------------------
@@ -1579,6 +1918,26 @@ ALTER TRIGGER "TRG_MEMBERS_LAST_UPDATED" ENABLE;
 --------------------------------------------------------
 
 --------------------------------------------------------
+--  DDL for Trigger WEB_LOGON_EDITED
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "WEB_LOGON_EDITED"
+AFTER INSERT OR UPDATE OF LOGON_ID,LOGON_PASS2 ON WEB_LOGON
+FOR EACH ROW
+DECLARE
+    D DATE;
+    R_ID NUMBER;
+BEGIN
+    D := SYSDATE;
+
+    R_ID := :NEW.MEMBER_ID;
+
+    INSERT INTO DB_EDITS (TABLE_NAME, ROW_ID, TIME_STAMP) VALUES('WEB_LOGON', R_ID, D);
+
+END;
+/
+ALTER TRIGGER "WEB_LOGON_EDITED" ENABLE;
+--------------------------------------------------------
 --  DDL for Procedure CREATE_MEMBER
 --------------------------------------------------------
 set define off;
@@ -1594,35 +1953,35 @@ BEGIN
 
   begin
     insert into members (
-    ID,
-    NAME,
-    FIRSTNAME,
-    BIRTHDAY,
-    NATIONALITY,
-    MEMBERSHIP,
-    TEMP_MEMB,
-    LANG1,
-    LANG2,
-    CATEGORY,
-    WORK_ADDRESS1,
-    WORK_ADDRESS2,
-    WORK_TOWNCODE,
-    WORK_TOWN,
-    WORK_STATE,
-    WORK_PHONE,
-    E_MAIL,
-    HOME_ADDR,
-    HOME_TOWNCODE,
-    HOME_TOWN,
-    HOME_STATE,
-    HOME_PHONE,
-    MAIL_PREFERENCE,
-    FAVOURITE_MAILING_POST,
-    MEMBER_ENTRANCE,
-    CELL_PHONE,
-    last_updated_date,
-    gender,
-    valid_from_date,
+      ID,
+      NAME,
+      FIRSTNAME,
+      BIRTHDAY,
+      NATIONALITY,
+      MEMBERSHIP,
+      TEMP_MEMB,
+      LANG1,
+      LANG2,
+      CATEGORY,
+      WORK_ADDRESS1,
+      WORK_ADDRESS2,
+      WORK_TOWNCODE,
+      WORK_TOWN,
+      WORK_STATE,
+      WORK_PHONE,
+      E_MAIL,
+      HOME_ADDR,
+      HOME_TOWNCODE,
+      HOME_TOWN,
+      HOME_STATE,
+      HOME_PHONE,
+      MAIL_PREFERENCE,
+      FAVOURITE_MAILING_POST,
+      MEMBER_ENTRANCE,
+      CELL_PHONE,
+      last_updated_date,
+      gender,
+      valid_from_date,
       valid_until_date,
       interest_in_fibreglass,
       interest_in_woodwork,
@@ -1639,35 +1998,35 @@ BEGIN
       interest_in_towing_on_land,
       special_talents
     ) select
-    ID,
-    upper(NAME),
-    FIRSTNAME,
-    BIRTHDAY,
-    NATIONALITY,
-    MEMBERSHIP,
-    TEMP_MEMB,
-    LANG1,
-    LANG2,
-    CATEGORY,
-    WORK_ADDRESS1,
-    WORK_ADDRESS2,
-    WORK_TOWNCODE,
-    WORK_TOWN,
-    WORK_STATE,
-    WORK_PHONE,
-    E_MAIL,
-    HOME_ADDR,
-    HOME_TOWNCODE,
-    HOME_TOWN,
-    HOME_STATE,
-    HOME_PHONE,
-    MAIL_PREFERENCE,
-    FAVOURITE_MAILING_POST,
-    to_char(y),
-    CELL_PHONE,
-    last_updated_date,
-    gender,
-    valid_from_date,
+      ID,
+      upper(NAME),
+      FIRSTNAME,
+      BIRTHDAY,
+      NATIONALITY,
+      MEMBERSHIP,
+      TEMP_MEMB,
+      LANG1,
+      LANG2,
+      CATEGORY,
+      WORK_ADDRESS1,
+      WORK_ADDRESS2,
+      WORK_TOWNCODE,
+      WORK_TOWN,
+      WORK_STATE,
+      WORK_PHONE,
+      E_MAIL,
+      HOME_ADDR,
+      HOME_TOWNCODE,
+      HOME_TOWN,
+      HOME_STATE,
+      HOME_PHONE,
+      MAIL_PREFERENCE,
+      FAVOURITE_MAILING_POST,
+      to_char(y),
+      CELL_PHONE,
+      last_updated_date,
+      gender,
+      valid_from_date,
       valid_until_date,
       interest_in_fibreglass,
       interest_in_woodwork,
@@ -7236,6 +7595,39 @@ Returns p_username if the username and password match a YCC user, or null otherw
   end ycc_authenticate;
 
 /
+
+--------------------------------------------------------
+--------------------------------------------------------
+-- Constraints
+--------------------------------------------------------
+--------------------------------------------------------
+
+--------------------------------------------------------
+--  Constraints for Table IMPORTANT_VALUES
+--------------------------------------------------------
+
+  ALTER TABLE "IMPORTANT_VALUES" MODIFY ("WHAT" NOT NULL ENABLE);
+  ALTER TABLE "IMPORTANT_VALUES" MODIFY ("VAL" NOT NULL ENABLE);
+  ALTER TABLE "IMPORTANT_VALUES" MODIFY ("LAST_MODIFIED" NOT NULL ENABLE);
+  ALTER TABLE "IMPORTANT_VALUES" ADD PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table BA5_OBSOLETE
+--------------------------------------------------------
+
+  ALTER TABLE "BA5_OBSOLETE" MODIFY ("ID" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table MD_APPLICATIONS
+--------------------------------------------------------
+
+  ALTER TABLE "MD_APPLICATIONS" MODIFY ("ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONS" MODIFY ("PROJECT_ID_FK" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONS" MODIFY ("SECURITY_GROUP_ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONS" MODIFY ("CREATED_ON" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONS" ADD CONSTRAINT "MD_APPLICATIONS_PK" PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table TO_DEL_LOTTERY_BCK20190207
 --------------------------------------------------------
@@ -7258,21 +7650,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
---  Constraints for Table IMPORTANT_VALUES
---------------------------------------------------------
-
-  ALTER TABLE "IMPORTANT_VALUES" MODIFY ("WHAT" NOT NULL ENABLE);
-  ALTER TABLE "IMPORTANT_VALUES" MODIFY ("VAL" NOT NULL ENABLE);
-  ALTER TABLE "IMPORTANT_VALUES" MODIFY ("LAST_MODIFIED" NOT NULL ENABLE);
-  ALTER TABLE "IMPORTANT_VALUES" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table BA5_OBSOLETE
---------------------------------------------------------
-
-  ALTER TABLE "BA5_OBSOLETE" MODIFY ("ID" NOT NULL ENABLE);
---------------------------------------------------------
 --  Constraints for Table SUTEST_LASTENTRE2004_OBS
 --------------------------------------------------------
 
@@ -7286,6 +7663,11 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "KEYS" MODIFY ("KYEAR" NOT NULL ENABLE);
   ALTER TABLE "KEYS" ADD CONSTRAINT "KEYS_PK" PRIMARY KEY ("KEY_ID", "MEMBER_ID", "KYEAR")
   USING INDEX "KEYS_PK"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table HT_WEB_LOGON
+--------------------------------------------------------
+
+  ALTER TABLE "HT_WEB_LOGON" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table INFOLICENCES
 --------------------------------------------------------
@@ -7304,6 +7686,24 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
+--  Constraints for Table ADMIN
+--------------------------------------------------------
+
+  ALTER TABLE "ADMIN" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table HOLIDAYS
+--------------------------------------------------------
+
+  ALTER TABLE "HOLIDAYS" MODIFY ("DAY" NOT NULL ENABLE);
+  ALTER TABLE "HOLIDAYS" MODIFY ("LABEL" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table LOTTERY_RESULTS_ARCHIVE
+--------------------------------------------------------
+
+  ALTER TABLE "LOTTERY_RESULTS_ARCHIVE" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "LOTTERY_RESULTS_ARCHIVE" MODIFY ("YEAR" NOT NULL ENABLE);
+  ALTER TABLE "LOTTERY_RESULTS_ARCHIVE" MODIFY ("DRAWN_SEQ" NOT NULL ENABLE);
+--------------------------------------------------------
 --  Constraints for Table TESTS
 --------------------------------------------------------
 
@@ -7318,24 +7718,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
---  Constraints for Table LOTTERY_RESULTS_ARCHIVE
---------------------------------------------------------
-
-  ALTER TABLE "LOTTERY_RESULTS_ARCHIVE" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "LOTTERY_RESULTS_ARCHIVE" MODIFY ("YEAR" NOT NULL ENABLE);
-  ALTER TABLE "LOTTERY_RESULTS_ARCHIVE" MODIFY ("DRAWN_SEQ" NOT NULL ENABLE);
---------------------------------------------------------
---  Constraints for Table ADMIN
---------------------------------------------------------
-
-  ALTER TABLE "ADMIN" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
---------------------------------------------------------
---  Constraints for Table HOLIDAYS
---------------------------------------------------------
-
-  ALTER TABLE "HOLIDAYS" MODIFY ("DAY" NOT NULL ENABLE);
-  ALTER TABLE "HOLIDAYS" MODIFY ("LABEL" NOT NULL ENABLE);
---------------------------------------------------------
 --  Constraints for Table MEMBERSHIP
 --------------------------------------------------------
 
@@ -7343,17 +7725,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "MEMBERSHIP" MODIFY ("MB_NAME" NOT NULL ENABLE);
   ALTER TABLE "MEMBERSHIP" MODIFY ("E_DESC" NOT NULL ENABLE);
   ALTER TABLE "MEMBERSHIP" MODIFY ("F_DESC" NOT NULL ENABLE);
---------------------------------------------------------
---  Constraints for Table REGATTAS_EXT
---------------------------------------------------------
-
-  ALTER TABLE "REGATTAS_EXT" MODIFY ("ID" NOT NULL ENABLE);
-  ALTER TABLE "REGATTAS_EXT" MODIFY ("DATE_FROM" NOT NULL ENABLE);
-  ALTER TABLE "REGATTAS_EXT" MODIFY ("NAME" NOT NULL ENABLE);
-  ALTER TABLE "REGATTAS_EXT" MODIFY ("YCC_BOAT_CATEGORY" NOT NULL ENABLE);
-  ALTER TABLE "REGATTAS_EXT" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table BUVETTE
 --------------------------------------------------------
@@ -7364,6 +7735,31 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "BUVETTE" MODIFY ("QUANTITY" NOT NULL ENABLE);
   ALTER TABLE "BUVETTE" MODIFY ("MODIFIED" NOT NULL ENABLE);
   ALTER TABLE "BUVETTE" ADD PRIMARY KEY ("RES_ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table EMAIL_TEMPLATES
+--------------------------------------------------------
+
+  ALTER TABLE "EMAIL_TEMPLATES" ADD PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table COURSES_OBS
+--------------------------------------------------------
+
+  ALTER TABLE "COURSES_OBS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "COURSES_OBS" ADD CONSTRAINT "COURSES_PK" PRIMARY KEY ("MEMBER_ID", "CLASS_ID")
+  USING INDEX "COURSES_PK"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table REGATTAS_EXT
+--------------------------------------------------------
+
+  ALTER TABLE "REGATTAS_EXT" MODIFY ("ID" NOT NULL ENABLE);
+  ALTER TABLE "REGATTAS_EXT" MODIFY ("DATE_FROM" NOT NULL ENABLE);
+  ALTER TABLE "REGATTAS_EXT" MODIFY ("NAME" NOT NULL ENABLE);
+  ALTER TABLE "REGATTAS_EXT" MODIFY ("YCC_BOAT_CATEGORY" NOT NULL ENABLE);
+  ALTER TABLE "REGATTAS_EXT" ADD PRIMARY KEY ("ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7380,13 +7776,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "SU_PREOUTING_LASTENTRY2003_OBS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
   ALTER TABLE "SU_PREOUTING_LASTENTRY2003_OBS" MODIFY ("YEAR" NOT NULL ENABLE);
 --------------------------------------------------------
---  Constraints for Table EMAIL_TEMPLATES
---------------------------------------------------------
-
-  ALTER TABLE "EMAIL_TEMPLATES" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
 --  Constraints for Table FEES
 --------------------------------------------------------
 
@@ -7398,17 +7787,63 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX "CAT_PK"  ENABLE;
   ALTER TABLE "FEES" ADD CONSTRAINT "CHECK_CAT" CHECK (cat_id in ('AS','AJ','FM','H','C','T')) ENABLE;
 --------------------------------------------------------
---  Constraints for Table COURSES_OBS
---------------------------------------------------------
-
-  ALTER TABLE "COURSES_OBS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "COURSES_OBS" ADD CONSTRAINT "COURSES_PK" PRIMARY KEY ("MEMBER_ID", "CLASS_ID")
-  USING INDEX "COURSES_PK"  ENABLE;
---------------------------------------------------------
 --  Constraints for Table R_MEMBERS
 --------------------------------------------------------
 
   ALTER TABLE "R_MEMBERS" MODIFY ("ID" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table WEBNEWS_EMPTY
+--------------------------------------------------------
+
+  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("SUBMITTER" NOT NULL ENABLE);
+  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("SUBMITTER_EMAIL" NOT NULL ENABLE);
+  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("SUBMISSION" NOT NULL ENABLE);
+  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("MESSAGE" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table NEWMEMBERS_EMPTY
+--------------------------------------------------------
+
+  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("ID" NOT NULL ENABLE);
+  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("NAME" NOT NULL ENABLE);
+  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("FIRSTNAME" NOT NULL ENABLE);
+  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("MEMBERSHIP" NOT NULL ENABLE);
+  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("MEMBER_ENTRANCE" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table EMAIL_QUEUE_TABLE
+--------------------------------------------------------
+
+  ALTER TABLE "EMAIL_QUEUE_TABLE" ADD PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table MULTIPLERESERVATION
+--------------------------------------------------------
+
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("RES_ID" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("RESDATE" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("CREATED" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("MODIFIED" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY1" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY2" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY3" NOT NULL ENABLE);
+  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY4" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table LOTTERY_RESULTS
+--------------------------------------------------------
+
+  ALTER TABLE "LOTTERY_RESULTS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "LOTTERY_RESULTS" MODIFY ("YEAR" NOT NULL ENABLE);
+  ALTER TABLE "LOTTERY_RESULTS" MODIFY ("DRAWN_SEQ" NOT NULL ENABLE);
+  ALTER TABLE "LOTTERY_RESULTS" ADD PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+  ALTER TABLE "LOTTERY_RESULTS" ADD CONSTRAINT "LOTTERY_RESULTS_UQ1" UNIQUE ("MEMBER_ID", "YEAR")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+  ALTER TABLE "LOTTERY_RESULTS" ADD CONSTRAINT "LOTTERY_RESULTS_UQ2" UNIQUE ("DRAWN_SEQ", "YEAR")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table MEMBERS_DATA_HISTORY
 --------------------------------------------------------
@@ -7424,23 +7859,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
---  Constraints for Table NEWMEMBERS_EMPTY
---------------------------------------------------------
-
-  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("ID" NOT NULL ENABLE);
-  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("NAME" NOT NULL ENABLE);
-  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("FIRSTNAME" NOT NULL ENABLE);
-  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("MEMBERSHIP" NOT NULL ENABLE);
-  ALTER TABLE "NEWMEMBERS_EMPTY" MODIFY ("MEMBER_ENTRANCE" NOT NULL ENABLE);
---------------------------------------------------------
---  Constraints for Table WEBNEWS_EMPTY
---------------------------------------------------------
-
-  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("SUBMITTER" NOT NULL ENABLE);
-  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("SUBMITTER_EMAIL" NOT NULL ENABLE);
-  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("SUBMISSION" NOT NULL ENABLE);
-  ALTER TABLE "WEBNEWS_EMPTY" MODIFY ("MESSAGE" NOT NULL ENABLE);
---------------------------------------------------------
 --  Constraints for Table LICENCES
 --------------------------------------------------------
 
@@ -7449,13 +7867,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "LICENCES" MODIFY ("LYEAR" NOT NULL ENABLE);
   ALTER TABLE "LICENCES" ADD CONSTRAINT "LICENCE_PK" PRIMARY KEY ("LICENCE_ID", "MEMBER_ID")
   USING INDEX "LICENCE_PK"  ENABLE;
---------------------------------------------------------
---  Constraints for Table EMAIL_QUEUE_TABLE
---------------------------------------------------------
-
-  ALTER TABLE "EMAIL_QUEUE_TABLE" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table REGATTA_SERIES_EXT
 --------------------------------------------------------
@@ -7479,19 +7890,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
---  Constraints for Table MULTIPLERESERVATION
---------------------------------------------------------
-
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("RES_ID" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("RESDATE" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("CREATED" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("MODIFIED" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY1" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY2" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY3" NOT NULL ENABLE);
-  ALTER TABLE "MULTIPLERESERVATION" MODIFY ("QUANTITY4" NOT NULL ENABLE);
---------------------------------------------------------
 --  Constraints for Table STATUS
 --------------------------------------------------------
 
@@ -7503,28 +7901,18 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "STATUS" MODIFY ("STATUS" NOT NULL ENABLE);
   ALTER TABLE "STATUS" MODIFY ("MODIFIED" NOT NULL ENABLE);
 --------------------------------------------------------
---  Constraints for Table LOTTERY_RESULTS
+--  Constraints for Table MD_APPLICATIONFILES
 --------------------------------------------------------
 
-  ALTER TABLE "LOTTERY_RESULTS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "LOTTERY_RESULTS" MODIFY ("YEAR" NOT NULL ENABLE);
-  ALTER TABLE "LOTTERY_RESULTS" MODIFY ("DRAWN_SEQ" NOT NULL ENABLE);
-  ALTER TABLE "LOTTERY_RESULTS" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
-  ALTER TABLE "LOTTERY_RESULTS" ADD CONSTRAINT "LOTTERY_RESULTS_UQ1" UNIQUE ("MEMBER_ID", "YEAR")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
-  ALTER TABLE "LOTTERY_RESULTS" ADD CONSTRAINT "LOTTERY_RESULTS_UQ2" UNIQUE ("DRAWN_SEQ", "YEAR")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table TEACHERS
---------------------------------------------------------
-
-  ALTER TABLE "TEACHERS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "TEACHERS" MODIFY ("LICENSE" NOT NULL ENABLE);
-  ALTER TABLE "TEACHERS" ADD PRIMARY KEY ("TEACHER_ID")
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("APPLICATIONS_ID_FK" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("NAME" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("URI" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("TYPE" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("STATE" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("SECURITY_GROUP_ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" MODIFY ("CREATED_ON" NOT NULL ENABLE);
+  ALTER TABLE "MD_APPLICATIONFILES" ADD CONSTRAINT "MD_APPLICATIONFILES_PK" PRIMARY KEY ("ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7532,21 +7920,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
 --------------------------------------------------------
 
   ALTER TABLE "USERLIST" ADD UNIQUE ("USERNAME")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table FEESCOURSES_LASTENTRY2005_OBS
---------------------------------------------------------
-
-  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("YEAR_C" NOT NULL ENABLE);
-  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("COURSE" NOT NULL ENABLE);
-  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("FEECOURSE" NOT NULL ENABLE);
---------------------------------------------------------
---  Constraints for Table DEPARTMENTS
---------------------------------------------------------
-
-  ALTER TABLE "DEPARTMENTS" ADD PRIMARY KEY ("DEP_ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7567,7 +7940,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "BOATS" MODIFY ("BOAT_ID" NOT NULL ENABLE);
   ALTER TABLE "BOATS" MODIFY ("NAME" NOT NULL ENABLE);
   ALTER TABLE "BOATS" MODIFY ("TYPE" NOT NULL ENABLE);
-  ALTER TABLE "BOATS" MODIFY ("YCC_NUM" NOT NULL ENABLE);
   ALTER TABLE "BOATS" MODIFY ("LICENSE" NOT NULL ENABLE);
   ALTER TABLE "BOATS" MODIFY ("CLASS" NOT NULL ENABLE);
   ALTER TABLE "BOATS" MODIFY ("TABLE_POS" NOT NULL ENABLE);
@@ -7581,6 +7953,30 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
   ALTER TABLE "BOATS" ADD UNIQUE ("TABLE_POS")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table TEACHERS
+--------------------------------------------------------
+
+  ALTER TABLE "TEACHERS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "TEACHERS" MODIFY ("LICENSE" NOT NULL ENABLE);
+  ALTER TABLE "TEACHERS" ADD PRIMARY KEY ("TEACHER_ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table FEESCOURSES_LASTENTRY2005_OBS
+--------------------------------------------------------
+
+  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("YEAR_C" NOT NULL ENABLE);
+  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("COURSE" NOT NULL ENABLE);
+  ALTER TABLE "FEESCOURSES_LASTENTRY2005_OBS" MODIFY ("FEECOURSE" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table DEPARTMENTS
+--------------------------------------------------------
+
+  ALTER TABLE "DEPARTMENTS" ADD PRIMARY KEY ("DEP_ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7613,6 +8009,12 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
+--  Constraints for Table T_MEMBERS_OBSOLETE
+--------------------------------------------------------
+
+  ALTER TABLE "T_MEMBERS_OBSOLETE" MODIFY ("T_ID" NOT NULL ENABLE);
+  ALTER TABLE "T_MEMBERS_OBSOLETE" MODIFY ("T_YEAR" NOT NULL ENABLE);
+--------------------------------------------------------
 --  Constraints for Table BOAT_KEYS
 --------------------------------------------------------
 
@@ -7621,12 +8023,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "BOAT_KEYS" ADD CONSTRAINT "BOAT_KEYS_PK" PRIMARY KEY ("BOAT_ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table T_MEMBERS_OBSOLETE
---------------------------------------------------------
-
-  ALTER TABLE "T_MEMBERS_OBSOLETE" MODIFY ("T_ID" NOT NULL ENABLE);
-  ALTER TABLE "T_MEMBERS_OBSOLETE" MODIFY ("T_YEAR" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table MEMBERSHIP_APPLICATIONS_TO_DEL
 --------------------------------------------------------
@@ -7638,10 +8034,74 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "MEMBERSHIP_APPLICATIONS_TO_DEL" MODIFY ("MEMBERSHIP" NOT NULL ENABLE);
   ALTER TABLE "MEMBERSHIP_APPLICATIONS_TO_DEL" MODIFY ("CATEGORY" NOT NULL ENABLE);
 --------------------------------------------------------
+--  Constraints for Table MD_TABLESPACES
+--------------------------------------------------------
+
+  ALTER TABLE "MD_TABLESPACES" MODIFY ("ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_TABLESPACES" MODIFY ("SCHEMA_ID_FK" NOT NULL ENABLE);
+  ALTER TABLE "MD_TABLESPACES" MODIFY ("SECURITY_GROUP_ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_TABLESPACES" MODIFY ("CREATED_ON" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table MD_FILE_ARTIFACTS
+--------------------------------------------------------
+
+  ALTER TABLE "MD_FILE_ARTIFACTS" MODIFY ("ID" CONSTRAINT "MD_APP_FILE_ART_NONULL" NOT NULL ENABLE);
+  ALTER TABLE "MD_FILE_ARTIFACTS" MODIFY ("APPLICATIONFILES_ID" CONSTRAINT "MD_APPL_FILE_FK_NONULL" NOT NULL ENABLE);
+  ALTER TABLE "MD_FILE_ARTIFACTS" MODIFY ("SECURITY_GROUP_ID" NOT NULL ENABLE);
+  ALTER TABLE "MD_FILE_ARTIFACTS" MODIFY ("CREATED_ON" NOT NULL ENABLE);
+  ALTER TABLE "MD_FILE_ARTIFACTS" ADD CONSTRAINT "MD_FILE_ARTIFACTS_PK" PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
 --  Constraints for Table EMPLOYEES
 --------------------------------------------------------
 
   ALTER TABLE "EMPLOYEES" ADD PRIMARY KEY ("EMP_ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table AGENDA_EMPTY
+--------------------------------------------------------
+
+  ALTER TABLE "AGENDA_EMPTY" MODIFY ("DAY" NOT NULL ENABLE);
+  ALTER TABLE "AGENDA_EMPTY" MODIFY ("SUBMITTER" NOT NULL ENABLE);
+  ALTER TABLE "AGENDA_EMPTY" MODIFY ("TYPE" NOT NULL ENABLE);
+  ALTER TABLE "AGENDA_EMPTY" MODIFY ("TITLE" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table INTEREST_LEVELS
+--------------------------------------------------------
+
+  ALTER TABLE "INTEREST_LEVELS" ADD PRIMARY KEY ("INTEREST_LEVEL")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table ENTRANCE_FEESRECORDS
+--------------------------------------------------------
+
+  ALTER TABLE "ENTRANCE_FEESRECORDS" ADD CONSTRAINT "ENTRANCE_FEESRECORDS_PK" PRIMARY KEY ("MEMBER_ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+  ALTER TABLE "ENTRANCE_FEESRECORDS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "ENTRANCE_FEESRECORDS" ADD CONSTRAINT "ENTRANCE_FEE_UQ" UNIQUE ("MEMBER_ID", "YEAR_F")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table COMMITTEE
+--------------------------------------------------------
+
+  ALTER TABLE "COMMITTEE" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
+  ALTER TABLE "COMMITTEE" MODIFY ("CYEAR" NOT NULL ENABLE);
+  ALTER TABLE "COMMITTEE" ADD CONSTRAINT "COMMITTEE_PK" PRIMARY KEY ("MEMBER_ID", "CYEAR")
+  USING INDEX "COMMITTEE_PK"  ENABLE;
+  ALTER TABLE "COMMITTEE" MODIFY ("COMMID" NOT NULL ENABLE);
+  ALTER TABLE "COMMITTEE" ADD UNIQUE ("COMMID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table LOTTERY_PLACES
+--------------------------------------------------------
+
+  ALTER TABLE "LOTTERY_PLACES" ADD PRIMARY KEY ("KEY")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7658,14 +8118,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "RESERVATIONS" ADD PRIMARY KEY ("RES_ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table AGENDA_EMPTY
---------------------------------------------------------
-
-  ALTER TABLE "AGENDA_EMPTY" MODIFY ("DAY" NOT NULL ENABLE);
-  ALTER TABLE "AGENDA_EMPTY" MODIFY ("SUBMITTER" NOT NULL ENABLE);
-  ALTER TABLE "AGENDA_EMPTY" MODIFY ("TYPE" NOT NULL ENABLE);
-  ALTER TABLE "AGENDA_EMPTY" MODIFY ("TITLE" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table CLASSES_OBSOLETE2001
 --------------------------------------------------------
@@ -7684,24 +8136,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "DELETED_MEMBER_APPS" MODIFY ("NAME" NOT NULL ENABLE);
   ALTER TABLE "DELETED_MEMBER_APPS" MODIFY ("FIRSTNAME" NOT NULL ENABLE);
   ALTER TABLE "DELETED_MEMBER_APPS" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table INTEREST_LEVELS
---------------------------------------------------------
-
-  ALTER TABLE "INTEREST_LEVELS" ADD PRIMARY KEY ("INTEREST_LEVEL")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table ENTRANCE_FEESRECORDS
---------------------------------------------------------
-
-  ALTER TABLE "ENTRANCE_FEESRECORDS" ADD CONSTRAINT "ENTRANCE_FEESRECORDS_PK" PRIMARY KEY ("MEMBER_ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
-  ALTER TABLE "ENTRANCE_FEESRECORDS" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "ENTRANCE_FEESRECORDS" ADD CONSTRAINT "ENTRANCE_FEE_UQ" UNIQUE ("MEMBER_ID", "YEAR_F")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7726,25 +8160,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
   ALTER TABLE "LOTTERY" ADD CONSTRAINT "LOTTERY_UQ" UNIQUE ("YEAR", "MEMBER_ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table COMMITTEE
---------------------------------------------------------
-
-  ALTER TABLE "COMMITTEE" MODIFY ("MEMBER_ID" NOT NULL ENABLE);
-  ALTER TABLE "COMMITTEE" MODIFY ("CYEAR" NOT NULL ENABLE);
-  ALTER TABLE "COMMITTEE" ADD CONSTRAINT "COMMITTEE_PK" PRIMARY KEY ("MEMBER_ID", "CYEAR")
-  USING INDEX "COMMITTEE_PK"  ENABLE;
-  ALTER TABLE "COMMITTEE" MODIFY ("COMMID" NOT NULL ENABLE);
-  ALTER TABLE "COMMITTEE" ADD UNIQUE ("COMMID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
-  TABLESPACE "USERS"  ENABLE;
---------------------------------------------------------
---  Constraints for Table LOTTERY_PLACES
---------------------------------------------------------
-
-  ALTER TABLE "LOTTERY_PLACES" ADD PRIMARY KEY ("KEY")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
@@ -7776,11 +8191,6 @@ Returns p_username if the username and password match a YCC user, or null otherw
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
   TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
---  Constraints for Table NATIONALITIES_TO_DROP
---------------------------------------------------------
-
-  ALTER TABLE "NATIONALITIES_TO_DROP" MODIFY ("NATID" NOT NULL ENABLE);
---------------------------------------------------------
 --  Constraints for Table MEMBERS
 --------------------------------------------------------
 
@@ -7792,6 +8202,22 @@ Returns p_username if the username and password match a YCC user, or null otherw
   ALTER TABLE "MEMBERS" MODIFY ("MEMBER_ENTRANCE" NOT NULL ENABLE);
   ALTER TABLE "MEMBERS" ADD CONSTRAINT "MEMBERS_PK" PRIMARY KEY ("ID")
   USING INDEX "MEMBERS_PK"  ENABLE;
+--------------------------------------------------------
+--  Constraints for Table NATIONALITIES_TO_DROP
+--------------------------------------------------------
+
+  ALTER TABLE "NATIONALITIES_TO_DROP" MODIFY ("NATID" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table DB_EDITS
+--------------------------------------------------------
+
+  ALTER TABLE "DB_EDITS" MODIFY ("ID" NOT NULL ENABLE);
+  ALTER TABLE "DB_EDITS" MODIFY ("TABLE_NAME" NOT NULL ENABLE);
+  ALTER TABLE "DB_EDITS" MODIFY ("ROW_ID" NOT NULL ENABLE);
+  ALTER TABLE "DB_EDITS" MODIFY ("TIME_STAMP" NOT NULL ENABLE);
+  ALTER TABLE "DB_EDITS" ADD CONSTRAINT "DB_EDITS_PK" PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS
+  TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table BA5ASSIGN_OBSOLETE
 --------------------------------------------------------
