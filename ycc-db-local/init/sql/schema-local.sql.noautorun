@@ -435,9 +435,26 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --  DDL for Table HT_WEB_LOGON
 --------------------------------------------------------
 
-  CREATE GLOBAL TEMPORARY TABLE "HT_WEB_LOGON"
-   (	"MEMBER_ID" NUMBER(19,0)
-   ) ON COMMIT DELETE ROWS ;
+-- Conditional creation for GLOBAL TEMPORARY TABLE
+
+BEGIN
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TABLE "HT_WEB_LOGON"';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE = -942 THEN
+	   -- Table does not exist, so no need to drop it
+        NULL;
+      ELSE
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+      END IF;
+  END;
+
+  EXECUTE IMMEDIATE 'CREATE GLOBAL TEMPORARY TABLE "HT_WEB_LOGON" (
+    "MEMBER_ID" NUMBER(19,0)
+  ) ON COMMIT DELETE ROWS';
+END;
+/
 --------------------------------------------------------
 --  DDL for Table IMPORTANT_DATES
 --------------------------------------------------------
@@ -8211,7 +8228,8 @@ Returns p_username if the username and password match a YCC user, or null otherw
 --  Constraints for Table DB_EDITS
 --------------------------------------------------------
 
-  ALTER TABLE "DB_EDITS" MODIFY ("ID" NOT NULL ENABLE);
+-- 
+--  ALTER TABLE "DB_EDITS" MODIFY ("ID" NOT NULL ENABLE);
   ALTER TABLE "DB_EDITS" MODIFY ("TABLE_NAME" NOT NULL ENABLE);
   ALTER TABLE "DB_EDITS" MODIFY ("ROW_ID" NOT NULL ENABLE);
   ALTER TABLE "DB_EDITS" MODIFY ("TIME_STAMP" NOT NULL ENABLE);
