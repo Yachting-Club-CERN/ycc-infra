@@ -1,5 +1,5 @@
 ARG KEYCLOAK_VERSION="22.0.4"
-ARG YCC_KEYCLOAK_PROVIDER_VERSION="1.0.0"
+ARG YCC_KEYCLOAK_PROVIDER_VERSION="1.0.1"
 # Improved version, see https://github.com/a8m/envsubst
 ARG ENVSUBST_VERSION="v1.4.2"
 # See https://github.com/Yachting-Club-CERN/ycc-infra/issues/8 and https://github.com/keycloak/keycloak/issues/17450
@@ -21,14 +21,14 @@ ARG PACKAGE_REPOSITORY_BASE_PATH
 ARG PACKAGE_REPOSITORY_AUTH
 
 RUN curl -L "https://github.com/a8m/envsubst/releases/download/$ENVSUBST_VERSION/envsubst-Linux-x86_64" \
-        -o "/usr/local/bin/envsubst" && \
+    -o "/usr/local/bin/envsubst" && \
     chmod +x "/usr/local/bin/envsubst" && \
     mkdir -p "/tmp/providers" && \
     curl -L -u "$PACKAGE_REPOSITORY_AUTH" \
-        "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION{,-ycc-db-dev,-ycc-db-test,-ycc-db-prod}.jar" \
-        -o "/tmp/providers/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION#1.jar" && \
+    "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION{,-ycc-db-dev,-ycc-db-test,-ycc-db-prod}.jar" \
+    -o "/tmp/providers/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION#1.jar" && \
     curl -L "https://repo1.maven.org/maven2/com/oracle/database/nls/orai18n/$KEYCLOAK_ORACLE_VERSION/orai18n-$KEYCLOAK_ORACLE_VERSION.jar" \
-        -o "/tmp/providers/com.oracle.database.nls.orai18n-$KEYCLOAK_ORACLE_VERSION.jar"
+    -o "/tmp/providers/com.oracle.database.nls.orai18n-$KEYCLOAK_ORACLE_VERSION.jar"
 
 # Main image
 FROM quay.io/keycloak/keycloak:$KEYCLOAK_VERSION

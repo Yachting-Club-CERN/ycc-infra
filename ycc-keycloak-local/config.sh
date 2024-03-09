@@ -3,7 +3,7 @@ SCRIPT_DIR="$( cd "$( dirname "$(readlink -f "${BASH_SOURCE[0]}")" )" && pwd)"
 
 KEYCLOAK_VERSION=22.0.4
 # Use LOCAL for using local build output (useful for development), exact version to download from the package repository
-YCC_KEYCLOAK_PROVIDER_VERSION="1.0.0"
+YCC_KEYCLOAK_PROVIDER_VERSION="1.0.1"
 # Ideal for flat Git repo clone layout
 YCC_KEYCLOAK_PROVIDER_LOCAL_DIRECTORY="$SCRIPT_DIR/../../ycc-keycloak-provider/build/libs"
 
