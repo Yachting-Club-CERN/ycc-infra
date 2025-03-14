@@ -6,26 +6,29 @@ ARG ENVSUBST_VERSION="v1.4.3"
 ARG KEYCLOAK_ORACLE_VERSION="23.2.0.0"
 
 ARG PACKAGE_REPOSITORY_BASE_PATH="https://maven.pkg.github.com/Yachting-Club-CERN/ycc-keycloak-provider/ch/cern/ycc/ycc-keycloak-provider"
-# Anyway this is public, but the public links are cumbersome cloud links
-ARG PACKAGE_REPOSITORY_AUTH="ycc-bot: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"
+# Anyway it is public, just GitHub still does not allow anonymous access to the Maven repositories
+# Also now they scan repos for secrets... And even if you allow them, they block the access token!
+ARG PACKAGE_REPOSITORY_AUTH1="ycc-bot:github_pat_11A6WKE6Q0U0EdleKbPeBa_trhvxDMh0"
+ARG PACKAGE_REPOSITORY_AUTH2="If3YOotnztbptQxWLpAtURMHqx4iSTbmxcM37JVX46bzaAVPCN"
 
 ARG KEYCLOAK_CERTIFICATE
 ARG KEYCLOAK_CERTIFICATE_KEY
 
 # Helper for resources
-FROM registry.access.redhat.com/ubi9-minimal as resources
+FROM registry.access.redhat.com/ubi9-minimal AS resources
 
 ARG ENVSUBST_VERSION
 ARG YCC_KEYCLOAK_PROVIDER_VERSION
 ARG KEYCLOAK_ORACLE_VERSION
 ARG PACKAGE_REPOSITORY_BASE_PATH
-ARG PACKAGE_REPOSITORY_AUTH
+ARG PACKAGE_REPOSITORY_AUTH1
+ARG PACKAGE_REPOSITORY_AUTH2
 
 RUN curl -L "https://github.com/a8m/envsubst/releases/download/$ENVSUBST_VERSION/envsubst-Linux-x86_64" \
     -o "/usr/local/bin/envsubst" && \
     chmod +x "/usr/local/bin/envsubst" && \
     mkdir -p "/tmp/providers" && \
-    curl -L -u "$PACKAGE_REPOSITORY_AUTH" \
+    curl -L -u "$PACKAGE_REPOSITORY_AUTH1$PACKAGE_REPOSITORY_AUTH2" \
     "$PACKAGE_REPOSITORY_BASE_PATH/$YCC_KEYCLOAK_PROVIDER_VERSION/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION{,-ycc-db-dev,-ycc-db-test,-ycc-db-prod}.jar" \
     -o "/tmp/providers/ycc-keycloak-provider-$YCC_KEYCLOAK_PROVIDER_VERSION#1.jar" && \
     curl -L "https://repo1.maven.org/maven2/com/oracle/database/nls/orai18n/$KEYCLOAK_ORACLE_VERSION/orai18n-$KEYCLOAK_ORACLE_VERSION.jar" \

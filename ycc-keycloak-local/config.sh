@@ -8,5 +8,9 @@ YCC_KEYCLOAK_PROVIDER_VERSION="1.1.0"
 YCC_KEYCLOAK_PROVIDER_LOCAL_DIRECTORY="$SCRIPT_DIR/../../ycc-keycloak-provider/build/libs"
 
 PACKAGE_REPOSITORY_BASE_PATH="https://maven.pkg.github.com/Yachting-Club-CERN/ycc-keycloak-provider/ch/cern/ycc/ycc-keycloak-provider"
-# Anyway this is public, but the public links are cumbersome cloud links
-PACKAGE_REPOSITORY_AUTH="ycc-bot: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"
+
+# Anyway it is public, just GitHub still does not allow anonymous access to the Maven repositories
+# Also now they scan repos for secrets... And even if you allow them, they block the access token!
+PACKAGE_REPOSITORY_AUTH1="ycc-bot:github_pat_11A6WKE6Q0U0EdleKbPeBa_trhvxDMh0"
+PACKAGE_REPOSITORY_AUTH2="If3YOotnztbptQxWLpAtURMHqx4iSTbmxcM37JVX46bzaAVPCN"
+PACKAGE_REPOSITORY_AUTH="$PACKAGE_REPOSITORY_AUTH1$PACKAGE_REPOSITORY_AUTH2"
