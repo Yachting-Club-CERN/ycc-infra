@@ -13,7 +13,16 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --------------------------------------------------------
 --------------------------------------------------------
 
--- Sequences are not used by the app
+--------------------------------------------------------
+--  DDL for Sequence FEESRECORDS_ID
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "FEESRECORDS_ID"  MINVALUE 1 MAXVALUE 999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
+--------------------------------------------------------
+--  DDL for Sequence HOLIDAYS_ID
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "HOLIDAYS_ID"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE  NOKEEP  NOSCALE  GLOBAL ;
 
 --------------------------------------------------------
 --------------------------------------------------------
@@ -375,7 +384,50 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --------------------------------------------------------
 --------------------------------------------------------
 
--- No triggers are used by the app, apart from its own ones
+--------------------------------------------------------
+--  DDL for Trigger FEESRECORDS_TRG
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "FEESRECORDS_TRG" before insert on feesrecords
+for each row
+begin
+  if :new.paymentid is null then
+     select feesrecords_id.nextval into :new.paymentid from dual;
+  end if;
+  if :new.entered_date is null then
+     select sysdate into :new.entered_date from dual;
+  end if;
+end;
+
+/
+ALTER TRIGGER "FEESRECORDS_TRG" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger HOLIDAYS_ID_TRIGGER
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "HOLIDAYS_ID_TRIGGER" 
+BEFORE INSERT ON HOLIDAYS 
+for each row
+begin
+  if :new.ID is null then
+     select HOLIDAYS_ID.nextval into :new.id from dual;
+  end if;
+end;
+/
+ALTER TRIGGER "HOLIDAYS_ID_TRIGGER" ENABLE;
+--------------------------------------------------------
+--  DDL for Trigger TRG_IMPORTANT_VALUES
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE TRIGGER "TRG_IMPORTANT_VALUES" 
+  before INSERT OR UPDATE ON important_values
+  FOR EACH ROW
+BEGIN
+		select sysdate() into :new.last_modified  from dual;
+END;
+
+/
+ALTER TRIGGER "TRG_IMPORTANT_VALUES" ENABLE;
 
 --------------------------------------------------------
 --------------------------------------------------------
