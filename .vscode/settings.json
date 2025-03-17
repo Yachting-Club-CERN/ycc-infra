@@ -19,5 +19,9 @@
     "titleBar.inactiveBackground": "#83256199",
     "titleBar.inactiveForeground": "#e7e7e799"
   },
-  "peacock.color": "#832561"
+  "peacock.color": "#832561",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "yachting-club-cern",
+    "projectKey": "Yachting-Club-CERN_ycc-infra"
+  }
 }
