@@ -42,7 +42,7 @@ RUN set -u && \
     echo -e "$KEYCLOAK_CERTIFICATE" > "/opt/keycloak/certificate/crt.pem" && \
     echo -e "$KEYCLOAK_CERTIFICATE_KEY" > "/opt/keycloak/certificate/key.pem"
 
-COPY --chown=1000:0  "ycc-theme/" "/opt/keycloak/themes/ycc-theme"
+COPY --chown=1000:0 "ycc-theme/" "/opt/keycloak/themes/ycc-theme"
 COPY --chown=1000:0 "conf" "/opt/keycloak/conf"
 COPY --chown=1000:0 "start.sh" "/opt/keycloak/start.sh"
 
