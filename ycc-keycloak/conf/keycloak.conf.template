@@ -19,5 +19,5 @@ http-enabled=false
 https-certificate-file=/opt/keycloak/certificate/crt.pem
 https-certificate-key-file=/opt/keycloak/certificate/key.pem
 
-hostname=ycc-auth.web.cern.ch
-hostname-admin=ycc-auth-admin.web.cern.ch
+hostname=https://ycc-auth.web.cern.ch
+hostname-admin=https://ycc-auth-admin.web.cern.ch
