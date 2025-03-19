@@ -12,6 +12,7 @@ health-enabled=true
 metrics-enabled=true
 
 # HTTP
+
 proxy=reencrypt
 hostname-strict=true
 http-enabled=false

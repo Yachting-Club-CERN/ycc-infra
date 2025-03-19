@@ -9,7 +9,7 @@ KC_DIR="$SCRIPT_DIR/keycloak-$KEYCLOAK_VERSION"
 KC_CONF_SOURCE="$SCRIPT_DIR/conf"
 KC_CONF_TARGET="$KC_DIR/conf"
 
-# Downlaod Keycloak
+# Download Keycloak
 if [ -f "$KC_DIST" ]; then
     echo "> Found Keycloak download"
 else
@@ -32,6 +32,17 @@ echo ""
 echo "> Copying $KC_CONF_SOURCE to $KC_CONF_TARGET"
 cp -r "$KC_CONF_SOURCE/"* "$KC_CONF_TARGET"
 echo ""
+
+# Install Oracle driver
+echo ""
+echo "> Installing Oracle driver"
+echo ""
+
+(
+    cd "$KC_DIR/providers"
+    curl -L -o "ojdbc11-$ORACLE_DRIVER_VERSION.jar" "https://repo1.maven.org/maven2/com/oracle/database/jdbc/ojdbc11/$ORACLE_DRIVER_VERSION/ojdbc11-$ORACLE_DRIVER_VERSION.jar"
+    curl -L -o "orai18n-$ORACLE_DRIVER_VERSION.jar" "https://repo1.maven.org/maven2/com/oracle/database/nls/orai18n/$ORACLE_DRIVER_VERSION/orai18n-$ORACLE_DRIVER_VERSION.jar"
+)
 
 # Install providers
 echo ""
