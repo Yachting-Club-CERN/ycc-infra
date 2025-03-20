@@ -10,6 +10,7 @@ services:
       - "ORACLE_PASSWORD=changeit"
     volumes:
       - "oracle-xe-volume:/opt/oracle/oradata"
+      # Comment this line if you don't want to recreate the databases on every start
       - "./init:/container-entrypoint-startdb.d"
 
 volumes:
