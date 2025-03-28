@@ -1,6 +1,7 @@
 CREATE TABLE helpers_app_permissions (
     member_id  NUMBER NOT NULL,
-    permission VARCHAR2(10) NOT NULL
+    permission VARCHAR2(10) NOT NULL,
+    note       NVARCHAR2(200)
 );
 
 ALTER TABLE helpers_app_permissions ADD CONSTRAINT helpers_app_permissions_pk PRIMARY KEY ( member_id );

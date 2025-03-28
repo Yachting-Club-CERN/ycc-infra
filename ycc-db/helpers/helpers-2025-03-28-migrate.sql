@@ -1,4 +1,11 @@
 --
+-- Add note column to helpers_app_permissions
+--
+ALTER TABLE helpers_app_permissions ADD (
+    note NVARCHAR2(200)
+);
+
+--
 -- Migrate helper_task_categories to use NVARCHAR2/NCLOB
 --
 
