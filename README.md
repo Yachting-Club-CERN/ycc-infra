@@ -27,11 +27,13 @@ In the YCC use case Keycloak brings us authentication, authorization and SSO. Th
 
 ## `ycc-db*`
 
-The new system uses the existing Oracle database (hosted at CERN). This is mainly for migration reasons.
+The new system uses the existing Oracle database (hosted at CERN).
 
 To connect to the database programmatically (both local and remote) you will need to install [Oracle Instant Client](https://www.oracle.com/uk/database/technologies/instant-client/downloads.html).
 
 To inspect the database, best is to use [SQL Developer](https://www.oracle.com/database/technologies/appdev/sqldeveloper-landing.html). Modern IDEs also have data browser extensions.
+
+Note that the CERN database uses ISO-8859-1 encoding, which means you need to use types such as `NVARCHAR2` and `NCLOB` for Unicode data.
 
 ### Database Schema Upgrade
 
