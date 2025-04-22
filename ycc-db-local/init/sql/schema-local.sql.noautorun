@@ -1,4 +1,4 @@
--- Schema @ 2025-03 without:
+-- Schema @ 2025-04 without:
 -- - AUDIT_LOG, HELPER* (app, see separate files)
 -- - Anything not related to the app
 --
@@ -347,6 +347,16 @@ WHENEVER SQLERROR EXIT FAILURE ;
 
   CREATE UNIQUE INDEX "ENTRANCE_FEE_UQ" ON "ENTRANCE_FEESRECORDS" ("MEMBER_ID", "YEAR_F") ;
 --------------------------------------------------------
+--  DDL for Index PK_FEESRECORDS
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "PK_FEESRECORDS" ON "FEESRECORDS" ("PAYMENTID") ;
+--------------------------------------------------------
+--  DDL for Index IMPORTANT_DATES_UQ
+--------------------------------------------------------
+
+  CREATE UNIQUE INDEX "IMPORTANT_DATES_UQ" ON "IMPORTANT_DATES" ("WHAT") ;
+--------------------------------------------------------
 --  DDL for Index INFOLICENCES_UK1
 --------------------------------------------------------
 
@@ -372,11 +382,6 @@ WHENEVER SQLERROR EXIT FAILURE ;
 --------------------------------------------------------
 
   CREATE UNIQUE INDEX "MEMBERS_PK" ON "MEMBERS" ("ID") ;
---------------------------------------------------------
---  DDL for Index PK_FEESRECORDS
---------------------------------------------------------
-
-  CREATE UNIQUE INDEX "PK_FEESRECORDS" ON "FEESRECORDS" ("PAYMENTID") ;
 
 --------------------------------------------------------
 --------------------------------------------------------
@@ -405,8 +410,8 @@ ALTER TRIGGER "FEESRECORDS_TRG" ENABLE;
 --  DDL for Trigger HOLIDAYS_ID_TRIGGER
 --------------------------------------------------------
 
-  CREATE OR REPLACE EDITIONABLE TRIGGER "HOLIDAYS_ID_TRIGGER" 
-BEFORE INSERT ON HOLIDAYS 
+  CREATE OR REPLACE EDITIONABLE TRIGGER "HOLIDAYS_ID_TRIGGER"
+BEFORE INSERT ON HOLIDAYS
 for each row
 begin
   if :new.ID is null then
@@ -419,7 +424,7 @@ ALTER TRIGGER "HOLIDAYS_ID_TRIGGER" ENABLE;
 --  DDL for Trigger TRG_IMPORTANT_VALUES
 --------------------------------------------------------
 
-  CREATE OR REPLACE EDITIONABLE TRIGGER "TRG_IMPORTANT_VALUES" 
+  CREATE OR REPLACE EDITIONABLE TRIGGER "TRG_IMPORTANT_VALUES"
   before INSERT OR UPDATE ON important_values
   FOR EACH ROW
 BEGIN
@@ -460,6 +465,7 @@ ALTER TRIGGER "TRG_IMPORTANT_VALUES" ENABLE;
   ALTER TABLE "INFOLICENCES" MODIFY ("DESCRIPTION" NOT NULL ENABLE);
   ALTER TABLE "INFOLICENCES" ADD CONSTRAINT "LICINFO_PK" PRIMARY KEY ("INFOID") USING INDEX "LICINFO_PK"  ENABLE;
   ALTER TABLE "INFOLICENCES" ADD CONSTRAINT "INFOLICENCES_UK1" UNIQUE ("NLICENCE") USING INDEX  ENABLE;
+  ALTER TABLE "INFOLICENCES" MODIFY ("HAS_TEST" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table HOLIDAYS
 --------------------------------------------------------
